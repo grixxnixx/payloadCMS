@@ -15,6 +15,11 @@ export interface Config {
     media: Media;
     header: Header;
     footer: Footer;
+    categories: Category;
+    tags: Tag;
+    posts: Post;
+    testimonials: Testimonial;
+    'review-statistics': ReviewStatistic;
     pages: Page;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -26,6 +31,11 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    tags: TagsSelect<false> | TagsSelect<true>;
+    posts: PostsSelect<false> | PostsSelect<true>;
+    testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
+    'review-statistics': ReviewStatisticsSelect<false> | ReviewStatisticsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -196,6 +206,94 @@ export interface Footer {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  name: string;
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tags".
+ */
+export interface Tag {
+  id: number;
+  name: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts".
+ */
+export interface Post {
+  id: number;
+  title: string;
+  author: number | User;
+  slug: string;
+  featuredImage: number | Media;
+  excerpt: string;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  category: number | Category;
+  tags?: (number | Tag)[] | null;
+  status: 'draft' | 'published';
+  publishedDate?: string | null;
+  seo?: {
+    title?: string | null;
+    description?: string | null;
+    image?: (number | null) | Media;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "testimonials".
+ */
+export interface Testimonial {
+  id: number;
+  author: string;
+  position: string;
+  content: string;
+  rating: '5' | '4' | '3' | '2' | '1';
+  platform: 'google' | 'trustpilot' | 'airbnb' | 'yelp';
+  authorImage: number | Media;
+  featured?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "review-statistics".
+ */
+export interface ReviewStatistic {
+  id: number;
+  platform: 'google' | 'trustpilot' | 'airbnb' | 'yelp';
+  reviewCount: number;
+  averageRating: number;
+  platformLogo: number | Media;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages".
  */
 export interface Page {
@@ -208,21 +306,26 @@ export interface Page {
           | 'hero'
           | 'aboutCoaching'
           | 'ourServices'
-          | 'ourExpertise'
           | 'ourPotential'
+          | 'ourExpertise'
           | 'introVideo'
-          | 'howWeWork'
+          | 'processSteps'
           | 'companyGrowth'
           | 'ourFaq'
           | 'ourTestimonials'
           | 'ourBlogs';
         hero?: {
           label: string;
-          subheading: string;
+          heading: string;
+          highlightedText: string;
           backgroundImage: number | Media;
           cta?: {
             label?: string | null;
             link?: string | null;
+          };
+          feature: {
+            icon: number | Media;
+            label?: string | null;
           };
         };
         aboutCoaching?: {
@@ -328,9 +431,16 @@ export interface Page {
           highlightedText: string;
           steps?:
             | {
+                icon: number | Media;
                 number: string;
                 title: string;
                 description: string;
+                id?: string | null;
+              }[]
+            | null;
+          keyFeatures?:
+            | {
+                title: string;
                 id?: string | null;
               }[]
             | null;
@@ -346,6 +456,46 @@ export interface Page {
                 value: string;
                 label: string;
                 description: string;
+                id?: string | null;
+              }[]
+            | null;
+        };
+        companyGrowth?: {
+          label: string;
+          heading: string;
+          highlightedText: string;
+          description: string;
+          image: number | Media;
+          statistics?:
+            | {
+                'count/percentage': string;
+                title: string;
+                description: string;
+                id?: string | null;
+              }[]
+            | null;
+        };
+        ourFaq?: {
+          label: string;
+          heading: string;
+          highlightedText: string;
+          description: string;
+          faq?:
+            | {
+                teamMembers?:
+                  | {
+                      image: number | Media;
+                      id?: string | null;
+                    }[]
+                  | null;
+                phoneNumber: string;
+                questions?:
+                  | {
+                      question: string;
+                      answer: string;
+                      id?: string | null;
+                    }[]
+                  | null;
                 id?: string | null;
               }[]
             | null;
@@ -383,6 +533,26 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'footer';
         value: number | Footer;
+      } | null)
+    | ({
+        relationTo: 'categories';
+        value: number | Category;
+      } | null)
+    | ({
+        relationTo: 'tags';
+        value: number | Tag;
+      } | null)
+    | ({
+        relationTo: 'posts';
+        value: number | Post;
+      } | null)
+    | ({
+        relationTo: 'testimonials';
+        value: number | Testimonial;
+      } | null)
+    | ({
+        relationTo: 'review-statistics';
+        value: number | ReviewStatistic;
       } | null)
     | ({
         relationTo: 'pages';
@@ -566,6 +736,77 @@ export interface FooterSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  name?: T;
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tags_select".
+ */
+export interface TagsSelect<T extends boolean = true> {
+  name?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts_select".
+ */
+export interface PostsSelect<T extends boolean = true> {
+  title?: T;
+  author?: T;
+  slug?: T;
+  featuredImage?: T;
+  excerpt?: T;
+  content?: T;
+  category?: T;
+  tags?: T;
+  status?: T;
+  publishedDate?: T;
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "testimonials_select".
+ */
+export interface TestimonialsSelect<T extends boolean = true> {
+  author?: T;
+  position?: T;
+  content?: T;
+  rating?: T;
+  platform?: T;
+  authorImage?: T;
+  featured?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "review-statistics_select".
+ */
+export interface ReviewStatisticsSelect<T extends boolean = true> {
+  platform?: T;
+  reviewCount?: T;
+  averageRating?: T;
+  platformLogo?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages_select".
  */
 export interface PagesSelect<T extends boolean = true> {
@@ -579,13 +820,20 @@ export interface PagesSelect<T extends boolean = true> {
           | T
           | {
               label?: T;
-              subheading?: T;
+              heading?: T;
+              highlightedText?: T;
               backgroundImage?: T;
               cta?:
                 | T
                 | {
                     label?: T;
                     link?: T;
+                  };
+              feature?:
+                | T
+                | {
+                    icon?: T;
+                    label?: T;
                   };
             };
         aboutCoaching?:
@@ -708,9 +956,16 @@ export interface PagesSelect<T extends boolean = true> {
               steps?:
                 | T
                 | {
+                    icon?: T;
                     number?: T;
                     title?: T;
                     description?: T;
+                    id?: T;
+                  };
+              keyFeatures?:
+                | T
+                | {
+                    title?: T;
                     id?: T;
                   };
             };
@@ -728,6 +983,50 @@ export interface PagesSelect<T extends boolean = true> {
                     value?: T;
                     label?: T;
                     description?: T;
+                    id?: T;
+                  };
+            };
+        companyGrowth?:
+          | T
+          | {
+              label?: T;
+              heading?: T;
+              highlightedText?: T;
+              description?: T;
+              image?: T;
+              statistics?:
+                | T
+                | {
+                    'count/percentage'?: T;
+                    title?: T;
+                    description?: T;
+                    id?: T;
+                  };
+            };
+        ourFaq?:
+          | T
+          | {
+              label?: T;
+              heading?: T;
+              highlightedText?: T;
+              description?: T;
+              faq?:
+                | T
+                | {
+                    teamMembers?:
+                      | T
+                      | {
+                          image?: T;
+                          id?: T;
+                        };
+                    phoneNumber?: T;
+                    questions?:
+                      | T
+                      | {
+                          question?: T;
+                          answer?: T;
+                          id?: T;
+                        };
                     id?: T;
                   };
             };

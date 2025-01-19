@@ -59,10 +59,16 @@ export const Page: CollectionConfig = {
               required: true,
             },
             {
-              name: 'subheading',
+              name: 'heading',
               type: 'text',
               required: true,
             },
+            {
+              name: 'highlightedText',
+              type: 'text',
+              required: true,
+            },
+
             {
               name: 'backgroundImage',
               type: 'upload',
@@ -79,6 +85,22 @@ export const Page: CollectionConfig = {
                 },
                 {
                   name: 'link',
+                  type: 'text',
+                },
+              ],
+            },
+            {
+              name: 'feature',
+              type: 'group',
+              fields: [
+                {
+                  name: 'icon',
+                  type: 'upload',
+                  relationTo: 'media',
+                  required: true,
+                },
+                {
+                  name: 'label',
                   type: 'text',
                 },
               ],
@@ -373,53 +395,7 @@ export const Page: CollectionConfig = {
             },
           ],
         },
-        {
-          name: 'ourExpertise',
-          type: 'group',
-          admin: {
-            condition: (_, siblingData) => siblingData.sectionType === 'ourExpertise',
-          },
-          fields: [
-            {
-              name: 'label',
-              type: 'text',
-              required: true,
-            },
-            {
-              name: 'heading',
-              type: 'text',
-              required: true,
-            },
-            {
-              name: 'highlightedText',
-              type: 'text',
-              required: true,
-            },
-            {
-              name: 'description',
-              type: 'textarea',
-              required: true,
-            },
 
-            {
-              name: 'service',
-              type: 'array',
-              fields: [
-                {
-                  name: 'image',
-                  type: 'upload',
-                  relationTo: 'media',
-                  required: true,
-                },
-                {
-                  name: 'title',
-                  type: 'text',
-                  required: true,
-                },
-              ],
-            },
-          ],
-        },
         {
           name: 'videoSection',
           type: 'group',
