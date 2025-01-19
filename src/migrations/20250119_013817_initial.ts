@@ -3,7 +3,7 @@ import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-postgres'
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
    CREATE TYPE "public"."enum_header_nav_items_for_cta_variant" AS ENUM('primary', 'secondary');
-  CREATE TYPE "public"."enum_pages_sections_section_type" AS ENUM('hero', 'about', 'services', 'contact', 'potential', 'faqs', 'testimonials', 'howWeWork', 'blog', 'video', 'expertise');
+  CREATE TYPE "public"."enum_pages_sections_section_type" AS ENUM('hero', 'aboutCoaching', 'services', 'ourPotential', 'ourExpertise', 'introVideo', 'howWeWork', 'companyGrowth', 'ourFaq', 'ourTestimonials', 'ourBlogs');
   CREATE TABLE IF NOT EXISTS "users" (
   	"id" serial PRIMARY KEY NOT NULL,
   	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
@@ -120,23 +120,119 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
   );
   
+  CREATE TABLE IF NOT EXISTS "pages_sections_about_coaching_features" (
+  	"_order" integer NOT NULL,
+  	"_parent_id" varchar NOT NULL,
+  	"id" varchar PRIMARY KEY NOT NULL,
+  	"text" varchar
+  );
+  
+  CREATE TABLE IF NOT EXISTS "pages_sections_about_coaching_team_members" (
+  	"_order" integer NOT NULL,
+  	"_parent_id" varchar NOT NULL,
+  	"id" varchar PRIMARY KEY NOT NULL,
+  	"image_id" integer,
+  	"name" varchar
+  );
+  
+  CREATE TABLE IF NOT EXISTS "pages_sections_services_service" (
+  	"_order" integer NOT NULL,
+  	"_parent_id" varchar NOT NULL,
+  	"id" varchar PRIMARY KEY NOT NULL,
+  	"icon_id" integer,
+  	"title" varchar,
+  	"short_description" varchar
+  );
+  
+  CREATE TABLE IF NOT EXISTS "pages_sections_our_potential_metrics" (
+  	"_order" integer NOT NULL,
+  	"_parent_id" varchar NOT NULL,
+  	"id" varchar PRIMARY KEY NOT NULL,
+  	"percentage" numeric,
+  	"label" varchar
+  );
+  
+  CREATE TABLE IF NOT EXISTS "pages_sections_our_potential_features" (
+  	"_order" integer NOT NULL,
+  	"_parent_id" varchar NOT NULL,
+  	"id" varchar PRIMARY KEY NOT NULL,
+  	"text" varchar
+  );
+  
+  CREATE TABLE IF NOT EXISTS "pages_sections_video_section_features" (
+  	"_order" integer NOT NULL,
+  	"_parent_id" varchar NOT NULL,
+  	"id" varchar PRIMARY KEY NOT NULL,
+  	"text" varchar
+  );
+  
+  CREATE TABLE IF NOT EXISTS "pages_sections_process_steps_steps" (
+  	"_order" integer NOT NULL,
+  	"_parent_id" varchar NOT NULL,
+  	"id" varchar PRIMARY KEY NOT NULL,
+  	"number" varchar,
+  	"title" varchar,
+  	"description" varchar
+  );
+  
+  CREATE TABLE IF NOT EXISTS "pages_sections_statistics_stats" (
+  	"_order" integer NOT NULL,
+  	"_parent_id" varchar NOT NULL,
+  	"id" varchar PRIMARY KEY NOT NULL,
+  	"value" varchar,
+  	"label" varchar,
+  	"description" varchar
+  );
+  
   CREATE TABLE IF NOT EXISTS "pages_sections" (
   	"_order" integer NOT NULL,
   	"_parent_id" integer NOT NULL,
   	"id" varchar PRIMARY KEY NOT NULL,
   	"section_type" "enum_pages_sections_section_type" NOT NULL,
-  	"title" varchar,
-  	"content" jsonb,
-  	"image_id" integer,
-  	"cta_button_text" varchar,
-  	"cta_button_link" varchar
+  	"hero_label" varchar,
+  	"hero_subheading" varchar,
+  	"hero_background_image_id" integer,
+  	"hero_cta_label" varchar,
+  	"hero_cta_link" varchar,
+  	"about_coaching_label" varchar DEFAULT 'ABOUT US',
+  	"about_coaching_heading" varchar,
+  	"about_coaching_highlighted_text" varchar,
+  	"about_coaching_description" varchar,
+  	"about_coaching_main_image_id" integer,
+  	"about_coaching_secondary_image_id" integer,
+  	"about_coaching_experience_years" numeric,
+  	"about_coaching_client_count" numeric,
+  	"about_coaching_award_title" varchar,
+  	"about_coaching_award_subtitle" varchar,
+  	"about_coaching_cta_text" varchar,
+  	"about_coaching_cta_link" varchar,
+  	"services_label" varchar DEFAULT 'SERVICES',
+  	"services_heading" varchar,
+  	"services_highlighted_text" varchar,
+  	"services_description" varchar,
+  	"our_potential_label" varchar,
+  	"our_potential_heading" varchar,
+  	"our_potential_highlighted_text" varchar,
+  	"our_potential_description" varchar,
+  	"our_potential_image_id" integer,
+  	"video_section_background_image_id" integer,
+  	"video_section_heading" varchar,
+  	"video_section_highlighted_text" varchar,
+  	"video_section_video_url" varchar,
+  	"process_steps_label" varchar,
+  	"process_steps_heading" varchar,
+  	"process_steps_highlighted_text" varchar,
+  	"statistics_label" varchar,
+  	"statistics_heading" varchar,
+  	"statistics_highlighted_text" varchar,
+  	"statistics_description" varchar,
+  	"statistics_image_id" integer
   );
   
   CREATE TABLE IF NOT EXISTS "pages" (
   	"id" serial PRIMARY KEY NOT NULL,
   	"title" varchar NOT NULL,
   	"slug" varchar NOT NULL,
-  	"content" jsonb,
   	"seo_title" varchar,
   	"seo_description" varchar,
   	"seo_image_id" integer,
@@ -236,7 +332,97 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   END $$;
   
   DO $$ BEGIN
-   ALTER TABLE "pages_sections" ADD CONSTRAINT "pages_sections_image_id_media_id_fk" FOREIGN KEY ("image_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
+   ALTER TABLE "pages_sections_about_coaching_features" ADD CONSTRAINT "pages_sections_about_coaching_features_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."pages_sections"("id") ON DELETE cascade ON UPDATE no action;
+  EXCEPTION
+   WHEN duplicate_object THEN null;
+  END $$;
+  
+  DO $$ BEGIN
+   ALTER TABLE "pages_sections_about_coaching_team_members" ADD CONSTRAINT "pages_sections_about_coaching_team_members_image_id_media_id_fk" FOREIGN KEY ("image_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
+  EXCEPTION
+   WHEN duplicate_object THEN null;
+  END $$;
+  
+  DO $$ BEGIN
+   ALTER TABLE "pages_sections_about_coaching_team_members" ADD CONSTRAINT "pages_sections_about_coaching_team_members_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."pages_sections"("id") ON DELETE cascade ON UPDATE no action;
+  EXCEPTION
+   WHEN duplicate_object THEN null;
+  END $$;
+  
+  DO $$ BEGIN
+   ALTER TABLE "pages_sections_services_service" ADD CONSTRAINT "pages_sections_services_service_icon_id_media_id_fk" FOREIGN KEY ("icon_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
+  EXCEPTION
+   WHEN duplicate_object THEN null;
+  END $$;
+  
+  DO $$ BEGIN
+   ALTER TABLE "pages_sections_services_service" ADD CONSTRAINT "pages_sections_services_service_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."pages_sections"("id") ON DELETE cascade ON UPDATE no action;
+  EXCEPTION
+   WHEN duplicate_object THEN null;
+  END $$;
+  
+  DO $$ BEGIN
+   ALTER TABLE "pages_sections_our_potential_metrics" ADD CONSTRAINT "pages_sections_our_potential_metrics_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."pages_sections"("id") ON DELETE cascade ON UPDATE no action;
+  EXCEPTION
+   WHEN duplicate_object THEN null;
+  END $$;
+  
+  DO $$ BEGIN
+   ALTER TABLE "pages_sections_our_potential_features" ADD CONSTRAINT "pages_sections_our_potential_features_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."pages_sections"("id") ON DELETE cascade ON UPDATE no action;
+  EXCEPTION
+   WHEN duplicate_object THEN null;
+  END $$;
+  
+  DO $$ BEGIN
+   ALTER TABLE "pages_sections_video_section_features" ADD CONSTRAINT "pages_sections_video_section_features_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."pages_sections"("id") ON DELETE cascade ON UPDATE no action;
+  EXCEPTION
+   WHEN duplicate_object THEN null;
+  END $$;
+  
+  DO $$ BEGIN
+   ALTER TABLE "pages_sections_process_steps_steps" ADD CONSTRAINT "pages_sections_process_steps_steps_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."pages_sections"("id") ON DELETE cascade ON UPDATE no action;
+  EXCEPTION
+   WHEN duplicate_object THEN null;
+  END $$;
+  
+  DO $$ BEGIN
+   ALTER TABLE "pages_sections_statistics_stats" ADD CONSTRAINT "pages_sections_statistics_stats_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."pages_sections"("id") ON DELETE cascade ON UPDATE no action;
+  EXCEPTION
+   WHEN duplicate_object THEN null;
+  END $$;
+  
+  DO $$ BEGIN
+   ALTER TABLE "pages_sections" ADD CONSTRAINT "pages_sections_hero_background_image_id_media_id_fk" FOREIGN KEY ("hero_background_image_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
+  EXCEPTION
+   WHEN duplicate_object THEN null;
+  END $$;
+  
+  DO $$ BEGIN
+   ALTER TABLE "pages_sections" ADD CONSTRAINT "pages_sections_about_coaching_main_image_id_media_id_fk" FOREIGN KEY ("about_coaching_main_image_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
+  EXCEPTION
+   WHEN duplicate_object THEN null;
+  END $$;
+  
+  DO $$ BEGIN
+   ALTER TABLE "pages_sections" ADD CONSTRAINT "pages_sections_about_coaching_secondary_image_id_media_id_fk" FOREIGN KEY ("about_coaching_secondary_image_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
+  EXCEPTION
+   WHEN duplicate_object THEN null;
+  END $$;
+  
+  DO $$ BEGIN
+   ALTER TABLE "pages_sections" ADD CONSTRAINT "pages_sections_our_potential_image_id_media_id_fk" FOREIGN KEY ("our_potential_image_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
+  EXCEPTION
+   WHEN duplicate_object THEN null;
+  END $$;
+  
+  DO $$ BEGIN
+   ALTER TABLE "pages_sections" ADD CONSTRAINT "pages_sections_video_section_background_image_id_media_id_fk" FOREIGN KEY ("video_section_background_image_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
+  EXCEPTION
+   WHEN duplicate_object THEN null;
+  END $$;
+  
+  DO $$ BEGIN
+   ALTER TABLE "pages_sections" ADD CONSTRAINT "pages_sections_statistics_image_id_media_id_fk" FOREIGN KEY ("statistics_image_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
   EXCEPTION
    WHEN duplicate_object THEN null;
   END $$;
@@ -328,9 +514,32 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX IF NOT EXISTS "footer_footer_navigation_parent_id_idx" ON "footer_footer_navigation" USING btree ("_parent_id");
   CREATE INDEX IF NOT EXISTS "footer_updated_at_idx" ON "footer" USING btree ("updated_at");
   CREATE INDEX IF NOT EXISTS "footer_created_at_idx" ON "footer" USING btree ("created_at");
+  CREATE INDEX IF NOT EXISTS "pages_sections_about_coaching_features_order_idx" ON "pages_sections_about_coaching_features" USING btree ("_order");
+  CREATE INDEX IF NOT EXISTS "pages_sections_about_coaching_features_parent_id_idx" ON "pages_sections_about_coaching_features" USING btree ("_parent_id");
+  CREATE INDEX IF NOT EXISTS "pages_sections_about_coaching_team_members_order_idx" ON "pages_sections_about_coaching_team_members" USING btree ("_order");
+  CREATE INDEX IF NOT EXISTS "pages_sections_about_coaching_team_members_parent_id_idx" ON "pages_sections_about_coaching_team_members" USING btree ("_parent_id");
+  CREATE INDEX IF NOT EXISTS "pages_sections_about_coaching_team_members_image_idx" ON "pages_sections_about_coaching_team_members" USING btree ("image_id");
+  CREATE INDEX IF NOT EXISTS "pages_sections_services_service_order_idx" ON "pages_sections_services_service" USING btree ("_order");
+  CREATE INDEX IF NOT EXISTS "pages_sections_services_service_parent_id_idx" ON "pages_sections_services_service" USING btree ("_parent_id");
+  CREATE INDEX IF NOT EXISTS "pages_sections_services_service_icon_idx" ON "pages_sections_services_service" USING btree ("icon_id");
+  CREATE INDEX IF NOT EXISTS "pages_sections_our_potential_metrics_order_idx" ON "pages_sections_our_potential_metrics" USING btree ("_order");
+  CREATE INDEX IF NOT EXISTS "pages_sections_our_potential_metrics_parent_id_idx" ON "pages_sections_our_potential_metrics" USING btree ("_parent_id");
+  CREATE INDEX IF NOT EXISTS "pages_sections_our_potential_features_order_idx" ON "pages_sections_our_potential_features" USING btree ("_order");
+  CREATE INDEX IF NOT EXISTS "pages_sections_our_potential_features_parent_id_idx" ON "pages_sections_our_potential_features" USING btree ("_parent_id");
+  CREATE INDEX IF NOT EXISTS "pages_sections_video_section_features_order_idx" ON "pages_sections_video_section_features" USING btree ("_order");
+  CREATE INDEX IF NOT EXISTS "pages_sections_video_section_features_parent_id_idx" ON "pages_sections_video_section_features" USING btree ("_parent_id");
+  CREATE INDEX IF NOT EXISTS "pages_sections_process_steps_steps_order_idx" ON "pages_sections_process_steps_steps" USING btree ("_order");
+  CREATE INDEX IF NOT EXISTS "pages_sections_process_steps_steps_parent_id_idx" ON "pages_sections_process_steps_steps" USING btree ("_parent_id");
+  CREATE INDEX IF NOT EXISTS "pages_sections_statistics_stats_order_idx" ON "pages_sections_statistics_stats" USING btree ("_order");
+  CREATE INDEX IF NOT EXISTS "pages_sections_statistics_stats_parent_id_idx" ON "pages_sections_statistics_stats" USING btree ("_parent_id");
   CREATE INDEX IF NOT EXISTS "pages_sections_order_idx" ON "pages_sections" USING btree ("_order");
   CREATE INDEX IF NOT EXISTS "pages_sections_parent_id_idx" ON "pages_sections" USING btree ("_parent_id");
-  CREATE INDEX IF NOT EXISTS "pages_sections_image_idx" ON "pages_sections" USING btree ("image_id");
+  CREATE INDEX IF NOT EXISTS "pages_sections_hero_hero_background_image_idx" ON "pages_sections" USING btree ("hero_background_image_id");
+  CREATE INDEX IF NOT EXISTS "pages_sections_about_coaching_about_coaching_main_image_idx" ON "pages_sections" USING btree ("about_coaching_main_image_id");
+  CREATE INDEX IF NOT EXISTS "pages_sections_about_coaching_about_coaching_secondary_image_idx" ON "pages_sections" USING btree ("about_coaching_secondary_image_id");
+  CREATE INDEX IF NOT EXISTS "pages_sections_our_potential_our_potential_image_idx" ON "pages_sections" USING btree ("our_potential_image_id");
+  CREATE INDEX IF NOT EXISTS "pages_sections_video_section_video_section_background_image_idx" ON "pages_sections" USING btree ("video_section_background_image_id");
+  CREATE INDEX IF NOT EXISTS "pages_sections_statistics_statistics_image_idx" ON "pages_sections" USING btree ("statistics_image_id");
   CREATE UNIQUE INDEX IF NOT EXISTS "pages_slug_idx" ON "pages" USING btree ("slug");
   CREATE INDEX IF NOT EXISTS "pages_seo_seo_image_idx" ON "pages" USING btree ("seo_image_id");
   CREATE INDEX IF NOT EXISTS "pages_updated_at_idx" ON "pages" USING btree ("updated_at");
@@ -369,6 +578,14 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TABLE "footer_contact" CASCADE;
   DROP TABLE "footer_footer_navigation" CASCADE;
   DROP TABLE "footer" CASCADE;
+  DROP TABLE "pages_sections_about_coaching_features" CASCADE;
+  DROP TABLE "pages_sections_about_coaching_team_members" CASCADE;
+  DROP TABLE "pages_sections_services_service" CASCADE;
+  DROP TABLE "pages_sections_our_potential_metrics" CASCADE;
+  DROP TABLE "pages_sections_our_potential_features" CASCADE;
+  DROP TABLE "pages_sections_video_section_features" CASCADE;
+  DROP TABLE "pages_sections_process_steps_steps" CASCADE;
+  DROP TABLE "pages_sections_statistics_stats" CASCADE;
   DROP TABLE "pages_sections" CASCADE;
   DROP TABLE "pages" CASCADE;
   DROP TABLE "payload_locked_documents" CASCADE;

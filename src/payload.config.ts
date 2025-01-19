@@ -11,6 +11,11 @@ import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { Header } from './collections/Header'
 import { Footer } from './collections/Footer'
+import { Blog } from './collections/Blogs'
+import { Categories } from './collections/Categories'
+import { Tags } from './collections/Tags'
+import { Testimonials } from './collections/Testimonials'
+import { ReviewStatistics } from './collections/ReviewStatistics'
 import { Page } from './collections/Page'
 
 const filename = fileURLToPath(import.meta.url)
@@ -23,7 +28,18 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, Header, Footer, Page],
+  collections: [
+    Users,
+    Media,
+    Header,
+    Footer,
+    Categories,
+    Tags,
+    Blog,
+    Testimonials,
+    ReviewStatistics,
+    Page,
+  ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

@@ -204,60 +204,152 @@ export interface Page {
   slug: string;
   sections?:
     | {
-        sectionType: 'hero' | 'about' | 'services' | 'expertise' | 'cta' | 'coachingVideo' | 'howWeWork';
+        sectionType:
+          | 'hero'
+          | 'aboutCoaching'
+          | 'ourServices'
+          | 'ourExpertise'
+          | 'ourPotential'
+          | 'introVideo'
+          | 'howWeWork'
+          | 'companyGrowth'
+          | 'ourFaq'
+          | 'ourTestimonials'
+          | 'ourBlogs';
         hero?: {
-          heading: string;
-          subheading?: string | null;
+          label: string;
+          subheading: string;
           backgroundImage: number | Media;
           cta?: {
-            text?: string | null;
+            label?: string | null;
             link?: string | null;
           };
         };
-        content?: {
-          heading?: string | null;
-          body?: {
-            root: {
-              type: string;
-              children: {
-                type: string;
-                version: number;
-                [k: string]: unknown;
-              }[];
-              direction: ('ltr' | 'rtl') | null;
-              format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-              indent: number;
-              version: number;
-            };
-            [k: string]: unknown;
-          } | null;
-          image?: (number | null) | Media;
-          layout?: ('contentLeft' | 'contentRight') | null;
-        };
-        features?:
-          | {
-              title: string;
-              description?: string | null;
-              icon?: string | null;
-              id?: string | null;
-            }[]
-          | null;
-        cta?: {
+        aboutCoaching?: {
+          label?: string | null;
           heading: string;
-          subheading?: string | null;
-          buttonText?: string | null;
-          buttonLink?: string | null;
-          backgroundColor?: ('primary' | 'secondary' | 'tertiary') | null;
+          highlightedText: string;
+          description: string;
+          mainImage: number | Media;
+          secondaryImage: number | Media;
+          experienceYears: number;
+          clientCount: number;
+          features?:
+            | {
+                text: string;
+                id?: string | null;
+              }[]
+            | null;
+          teamMembers?:
+            | {
+                image: number | Media;
+                name: string;
+                id?: string | null;
+              }[]
+            | null;
+          award: {
+            title: string;
+            subtitle: string;
+          };
+          cta: {
+            text: string;
+            link: string;
+          };
         };
-        testimonials?:
-          | {
-              quote: string;
-              author: string;
-              role?: string | null;
-              image?: (number | null) | Media;
-              id?: string | null;
-            }[]
-          | null;
+        ourServices?: {
+          label?: string | null;
+          heading: string;
+          highlightedText: string;
+          description: string;
+          service?:
+            | {
+                icon: number | Media;
+                title: string;
+                shortDescription: string;
+                id?: string | null;
+              }[]
+            | null;
+        };
+        ourExpertise?: {
+          label: string;
+          heading: string;
+          highlightedText: string;
+          description: string;
+          image: number | Media;
+          metrics?:
+            | {
+                percentage: number;
+                label: string;
+                id?: string | null;
+              }[]
+            | null;
+          features?:
+            | {
+                text: string;
+                id?: string | null;
+              }[]
+            | null;
+        };
+        ourPotential?: {
+          label: string;
+          heading: string;
+          highlightedText: string;
+          description: string;
+          image: number | Media;
+          metrics?:
+            | {
+                percentage: number;
+                label: string;
+                id?: string | null;
+              }[]
+            | null;
+          features?:
+            | {
+                text: string;
+                id?: string | null;
+              }[]
+            | null;
+        };
+        videoSection?: {
+          backgroundImage: number | Media;
+          heading: string;
+          highlightedText: string;
+          features?:
+            | {
+                text: string;
+                id?: string | null;
+              }[]
+            | null;
+          videoUrl: string;
+        };
+        processSteps?: {
+          label: string;
+          heading: string;
+          highlightedText: string;
+          steps?:
+            | {
+                number: string;
+                title: string;
+                description: string;
+                id?: string | null;
+              }[]
+            | null;
+        };
+        statistics?: {
+          label: string;
+          heading: string;
+          highlightedText: string;
+          description: string;
+          image: number | Media;
+          stats?:
+            | {
+                value: string;
+                label: string;
+                description: string;
+                id?: string | null;
+              }[]
+            | null;
+        };
         id?: string | null;
       }[]
     | null;
@@ -486,9 +578,46 @@ export interface PagesSelect<T extends boolean = true> {
         hero?:
           | T
           | {
-              heading?: T;
+              label?: T;
               subheading?: T;
               backgroundImage?: T;
+              cta?:
+                | T
+                | {
+                    label?: T;
+                    link?: T;
+                  };
+            };
+        aboutCoaching?:
+          | T
+          | {
+              label?: T;
+              heading?: T;
+              highlightedText?: T;
+              description?: T;
+              mainImage?: T;
+              secondaryImage?: T;
+              experienceYears?: T;
+              clientCount?: T;
+              features?:
+                | T
+                | {
+                    text?: T;
+                    id?: T;
+                  };
+              teamMembers?:
+                | T
+                | {
+                    image?: T;
+                    name?: T;
+                    id?: T;
+                  };
+              award?:
+                | T
+                | {
+                    title?: T;
+                    subtitle?: T;
+                  };
               cta?:
                 | T
                 | {
@@ -496,39 +625,111 @@ export interface PagesSelect<T extends boolean = true> {
                     link?: T;
                   };
             };
-        content?:
+        ourServices?:
           | T
           | {
+              label?: T;
               heading?: T;
-              body?: T;
-              image?: T;
-              layout?: T;
-            };
-        features?:
-          | T
-          | {
-              title?: T;
+              highlightedText?: T;
               description?: T;
-              icon?: T;
-              id?: T;
+              service?:
+                | T
+                | {
+                    icon?: T;
+                    title?: T;
+                    shortDescription?: T;
+                    id?: T;
+                  };
             };
-        cta?:
+        ourExpertise?:
           | T
           | {
+              label?: T;
               heading?: T;
-              subheading?: T;
-              buttonText?: T;
-              buttonLink?: T;
-              backgroundColor?: T;
+              highlightedText?: T;
+              description?: T;
+              image?: T;
+              metrics?:
+                | T
+                | {
+                    percentage?: T;
+                    label?: T;
+                    id?: T;
+                  };
+              features?:
+                | T
+                | {
+                    text?: T;
+                    id?: T;
+                  };
             };
-        testimonials?:
+        ourPotential?:
           | T
           | {
-              quote?: T;
-              author?: T;
-              role?: T;
+              label?: T;
+              heading?: T;
+              highlightedText?: T;
+              description?: T;
               image?: T;
-              id?: T;
+              metrics?:
+                | T
+                | {
+                    percentage?: T;
+                    label?: T;
+                    id?: T;
+                  };
+              features?:
+                | T
+                | {
+                    text?: T;
+                    id?: T;
+                  };
+            };
+        videoSection?:
+          | T
+          | {
+              backgroundImage?: T;
+              heading?: T;
+              highlightedText?: T;
+              features?:
+                | T
+                | {
+                    text?: T;
+                    id?: T;
+                  };
+              videoUrl?: T;
+            };
+        processSteps?:
+          | T
+          | {
+              label?: T;
+              heading?: T;
+              highlightedText?: T;
+              steps?:
+                | T
+                | {
+                    number?: T;
+                    title?: T;
+                    description?: T;
+                    id?: T;
+                  };
+            };
+        statistics?:
+          | T
+          | {
+              label?: T;
+              heading?: T;
+              highlightedText?: T;
+              description?: T;
+              image?: T;
+              stats?:
+                | T
+                | {
+                    value?: T;
+                    label?: T;
+                    description?: T;
+                    id?: T;
+                  };
             };
         id?: T;
       };

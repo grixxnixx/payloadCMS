@@ -1,5 +1,5 @@
+import { unique } from 'next/dist/build/utils'
 import { CollectionConfig } from 'payload/types'
-import { slugField } from '../fields/slug'
 
 export const Blog: CollectionConfig = {
   slug: 'posts',
@@ -22,7 +22,12 @@ export const Blog: CollectionConfig = {
       relationTo: 'users',
       required: true,
     },
-    slugField('title'),
+    {
+      name: 'slug',
+      type: 'text',
+      unique: true,
+      required: true,
+    },
     {
       name: 'featuredImage',
       type: 'upload',

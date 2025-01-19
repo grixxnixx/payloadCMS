@@ -34,11 +34,11 @@ export const Page: CollectionConfig = {
           options: [
             { label: 'Hero', value: 'hero' },
             { label: 'About/Coaching', value: 'aboutCoaching' },
-            { label: 'Services', value: 'services' },
+            { label: 'Our Services', value: 'ourServices' },
             { label: 'Our Potential', value: 'ourPotential' },
             { label: 'Our Expertise', value: 'ourExpertise' },
             { label: 'Intro Video', value: 'introVideo' },
-            { label: 'How We Work', value: 'howWeWork' },
+            { label: 'How We Work', value: 'processSteps' },
             { label: 'Company Growth', value: 'companyGrowth' },
             { label: 'Our FAQs', value: 'ourFaq' },
             { label: 'Our Testimonials', value: 'ourTestimonials' },
@@ -199,10 +199,10 @@ export const Page: CollectionConfig = {
         },
 
         {
-          name: 'services',
+          name: 'ourServices',
           type: 'group',
           admin: {
-            condition: (_, siblingData) => siblingData.sectionType === 'services',
+            condition: (_, siblingData) => siblingData.sectionType === 'ourServices',
           },
           fields: [
             {
@@ -243,6 +243,68 @@ export const Page: CollectionConfig = {
                 {
                   name: 'shortDescription',
                   type: 'textarea',
+                  required: true,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          name: 'ourExpertise',
+          type: 'group',
+          admin: {
+            condition: (_, siblingData) => siblingData.sectionType === 'ourExpertise',
+          },
+          fields: [
+            {
+              name: 'label',
+              type: 'text',
+              required: true,
+            },
+            {
+              name: 'heading',
+              type: 'text',
+              required: true,
+            },
+            {
+              name: 'highlightedText',
+              type: 'text',
+              required: true,
+            },
+            {
+              name: 'description',
+              type: 'textarea',
+              required: true,
+            },
+            {
+              name: 'image',
+              type: 'upload',
+              relationTo: 'media',
+              required: true,
+            },
+            {
+              name: 'metrics',
+              type: 'array',
+              fields: [
+                {
+                  name: 'percentage',
+                  type: 'number',
+                  required: true,
+                },
+                {
+                  name: 'label',
+                  type: 'text',
+                  required: true,
+                },
+              ],
+            },
+            {
+              name: 'features',
+              type: 'array',
+              fields: [
+                {
+                  name: 'text',
+                  type: 'text',
                   required: true,
                 },
               ],
@@ -304,6 +366,53 @@ export const Page: CollectionConfig = {
               fields: [
                 {
                   name: 'text',
+                  type: 'text',
+                  required: true,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          name: 'ourExpertise',
+          type: 'group',
+          admin: {
+            condition: (_, siblingData) => siblingData.sectionType === 'ourExpertise',
+          },
+          fields: [
+            {
+              name: 'label',
+              type: 'text',
+              required: true,
+            },
+            {
+              name: 'heading',
+              type: 'text',
+              required: true,
+            },
+            {
+              name: 'highlightedText',
+              type: 'text',
+              required: true,
+            },
+            {
+              name: 'description',
+              type: 'textarea',
+              required: true,
+            },
+
+            {
+              name: 'service',
+              type: 'array',
+              fields: [
+                {
+                  name: 'image',
+                  type: 'upload',
+                  relationTo: 'media',
+                  required: true,
+                },
+                {
+                  name: 'title',
                   type: 'text',
                   required: true,
                 },
@@ -379,6 +488,12 @@ export const Page: CollectionConfig = {
               type: 'array',
               fields: [
                 {
+                  name: 'icon',
+                  type: 'upload',
+                  relationTo: 'media',
+                  required: true,
+                },
+                {
                   name: 'number',
                   type: 'text',
                   required: true,
@@ -391,6 +506,17 @@ export const Page: CollectionConfig = {
                 {
                   name: 'description',
                   type: 'textarea',
+                  required: true,
+                },
+              ],
+            },
+            {
+              name: 'keyFeatures',
+              type: 'array',
+              fields: [
+                {
+                  name: 'title',
+                  type: 'text',
                   required: true,
                 },
               ],
@@ -448,6 +574,133 @@ export const Page: CollectionConfig = {
                   name: 'description',
                   type: 'textarea',
                   required: true,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          name: 'companyGrowth',
+          type: 'group',
+          admin: {
+            condition: (_, siblingData) => siblingData.sectionType === 'companyGrowth',
+          },
+          fields: [
+            {
+              name: 'label',
+              type: 'text',
+              required: true,
+            },
+            {
+              name: 'heading',
+              type: 'text',
+              required: true,
+            },
+            {
+              name: 'highlightedText',
+              type: 'text',
+              required: true,
+            },
+            {
+              name: 'description',
+              type: 'textarea',
+              required: true,
+            },
+            {
+              name: 'image',
+              type: 'upload',
+              relationTo: 'media',
+              required: true,
+            },
+
+            {
+              name: 'statistics',
+              type: 'array',
+              fields: [
+                {
+                  name: 'count/percentage',
+                  type: 'text',
+
+                  required: true,
+                },
+                {
+                  name: 'title',
+                  type: 'text',
+                  required: true,
+                },
+                {
+                  name: 'description',
+                  type: 'text',
+                  required: true,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          name: 'ourFaq',
+          type: 'group',
+          admin: {
+            condition: (_, siblingData) => siblingData.sectionType === 'ourFaq',
+          },
+          fields: [
+            {
+              name: 'label',
+              type: 'text',
+              required: true,
+            },
+            {
+              name: 'heading',
+              type: 'text',
+              required: true,
+            },
+            {
+              name: 'highlightedText',
+              type: 'text',
+              required: true,
+            },
+            {
+              name: 'description',
+              type: 'textarea',
+              required: true,
+            },
+
+            {
+              name: 'faq',
+              type: 'array',
+              fields: [
+                {
+                  name: 'teamMembers',
+                  type: 'array',
+                  fields: [
+                    {
+                      name: 'image',
+                      type: 'upload',
+                      relationTo: 'media',
+                      required: true,
+                    },
+                  ],
+                },
+                {
+                  name: 'phoneNumber',
+                  type: 'text',
+                  required: true,
+                },
+                {
+                  name: 'questions',
+                  type: 'array',
+                  fields: [
+                    {
+                      name: 'question',
+                      type: 'text',
+                      required: true,
+                    },
+                    {
+                      name: 'answer',
+                      type: 'textarea',
+                      required: true,
+                    },
+                  ],
                 },
               ],
             },
